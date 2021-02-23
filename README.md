@@ -17,3 +17,24 @@ For ease of development I chose to build my Maven app inside Docker
 ## Source Data
 
 http://prod1.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/pp-monthly-update-new-version.csv
+
+## Field Data Types
+
+| Field Name                        | Field Type |
+|-----------------------------------|------------|
+| Transaction unique identifier     | text       |
+| Price                             | numeric    |
+| Date of Transfer                  | date       |
+| Postcode                          | text       |
+| Property Type                     | text       |
+| Old/New                           | text       |
+| Duration                          | text       |
+| PAON                              | text       |
+| SAON                              | text       |
+| Street                            | text       |
+| Locality                          | text       |
+| Town/City                         | text       |
+| District                          | text       |
+| County                            | text       |
+| PPDCategory Type                  | text       |
+| Record Status - monthly file only | text       |
