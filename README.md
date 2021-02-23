@@ -1,5 +1,7 @@
 # sample_data_pipeline_beam
 
+Learning some Apache Beam...
+
 ## Overview
 
 - Create Beam app locally using DirectRunner
