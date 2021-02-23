@@ -3,16 +3,15 @@
 ## Overview
 
 - Create Beam app locally using DirectRunner
-- Package up using Maven so it can be ran on AWS ECS under a Hadoop cluster
+- Run on FlinkRunner via Docker
+- Deploy job to EMR via Scripts
+- (Not implemented) Detach from local machine by utilising EMR and Lambda to run job on a schedule
+- (Not implemented) Tests to validate that the inputs and outputs align
+- (Not implemented) Cloudwatch monitoring system
 
-## Running the Maven container
+## Running the Flink container
 
-For ease of development I chose to build my Maven app inside Docker
-
-	docker run -it \                                            
-	    -v /Users/chris/Development/sample_data_pipeline_beam/app:/app \
-	    -w /app \
-	    maven:3.6.0-jdk-8 /bin/bash
+The pipeline can be tested locally on Flink docker. See the aws_emr scripts for local and cloud based execution.
 
 ## Source Data
 
@@ -38,3 +37,9 @@ http://prod1.publicdata.landregistry.gov.uk.s3-website-eu-west-1.amazonaws.com/p
 | County                            | text       |
 | PPDCategory Type                  | text       |
 | Record Status - monthly file only | text       |
+
+## Alternative ideas
+
+Just run it on GCP as they have a managed BEAM runner. That will handle all this for us.
+
+Wanted to try AWS though...
