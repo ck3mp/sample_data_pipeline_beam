@@ -1,5 +1,6 @@
 import csv
 import json
+from datetime import datetime
 
 import apache_beam as beam
 from apache_beam.options.pipeline_options import PipelineOptions
@@ -10,10 +11,12 @@ class CustomOptions(PipelineOptions):
     @classmethod
     def _add_argparse_args(cls, parser):
         parser.add_argument('--input',
-                            help='CSV input file'
+                            help='CSV input file',
+                            default='/Users/chris/Development/sample_data_pipeline_beam/pp-monthly-update-new-version.csv'
                             )
         parser.add_argument('--output',
-                            help='JSON Output Location'
+                            help='JSON Output Location',
+                            default='/Users/chris/Development/sample_data_pipeline_beam/output/pp-monthly-update-new-version'
                             )
 
 
@@ -30,26 +33,36 @@ def parse_csv_file(element):
 
         return line
 
+
 class JSONDump(beam.DoFn):
     def process(self, element):
         return [json.dumps(element)]
 
-def main():
-    input_file = '/Users/chris/Development/sample_data_pipeline_beam/pp-monthly-update-new-version.csv'
-    output_file = '/Users/chris/Development/sample_data_pipeline_beam/output/pp-monthly-update-new-version'
 
-    # Use context handler so our pipeline can be closed automatically
-    with beam.Pipeline(options=options) as pipeline:
-        # Initially just load and parse the CSV into Beam Pipeline
+def create_output():
+    now = datetime.utcnow()
+    year = now.strftime('%Y')
+    month = now.strftime('%m')
+    day = now.strftime('%d')
+    s3_prefix = f'PROCESSED/extracted_year={year}/extracted_month={month}/extracted_day={day}/{now.isoformat()}_output'
+    return s3_prefix
+
+
+def main():
+    # Use S3 Data Lake Structuring for Athena/Glue for future cataloging etc.
+    out_key = create_output()
+
+    # Use context handler so our pipeline can be closed automatically and means execution is run automatically
+    with beam.Pipeline(options=CustomOptions()) as p:
+        # Load the CVS, Parse it into Python Objects, Turn to JSON Strings, and Write to File
         _ = (
-                pipeline
-                | 'Read CSV file' >> beam.io.ReadFromText(input_file)
+                p
+                | 'Read CSV file' >> beam.io.ReadFromText(p.options.input)
                 | 'Convert file to PyObjects' >> beam.Map(parse_csv_file)
                 | 'Dump to List of JSON Lines' >> beam.ParDo(JSONDump())
-                | 'Write the final transformed data to file' >> beam.io.WriteToText(output_file)
+                | 'Write the final transformed data to file' >> beam.io.WriteToText(out_key)
         )
 
 
 if __name__ == '__main__':
-    options = PipelineOptions()
     main()
