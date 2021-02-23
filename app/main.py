@@ -36,8 +36,12 @@ def create_output(s3_bucket):
 
 
 def main():
-    # Use S3 Data Lake Structuring for Athena/Glue for future cataloging etc.
-    out_key = create_output(args.s3_bucket)
+    # If we give a path the use it as output. Else us S3.
+    if args.output:
+        out_key = args.output
+    else:
+        # Use S3 Data Lake Structuring for Athena/Glue for future cataloging etc.
+        out_key = create_output(args.s3_bucket)
 
     options = PipelineOptions()
 
@@ -57,11 +61,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input',
                         help='CSV input file',
-                        default='/Users/chris/Development/sample_data_pipeline_beam/pp-monthly-update-new-version.csv'
+                        default=
+                        '/Users/chris/Development/sample_data_pipeline_beam/data/pp-monthly-update-new-version.csv'
                         )
     parser.add_argument('--output',
-                        help='JSON Output Location',
-                        default='/Users/chris/Development/sample_data_pipeline_beam/output/pp-monthly-update-new-version'
+                        help='CSV input file',
+                        default=None
                         )
     parser.add_argument('--s3_bucket',
                         help='S3 BUCKET',
