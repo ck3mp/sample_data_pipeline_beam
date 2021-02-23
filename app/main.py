@@ -17,10 +17,6 @@ class CustomOptions(PipelineOptions):
                             )
 
 
-def print_row(element):
-    print(element)
-
-
 def parse_csv_file(element):
     # read the file and de-quote the data
     for line in csv.reader([element], quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
@@ -34,23 +30,22 @@ def parse_csv_file(element):
 
         return line
 
-
-def list_to_json_line(element):
-    return json.dumps(element)
-
+class JSONDump(beam.DoFn):
+    def process(self, element):
+        return [json.dumps(element)]
 
 def main():
     input_file = '/Users/chris/Development/sample_data_pipeline_beam/pp-monthly-update-new-version.csv'
-    output_file = '/Users/chris/Development/sample_data_pipeline_beam/pp-monthly-update-new-version'
+    output_file = '/Users/chris/Development/sample_data_pipeline_beam/output/pp-monthly-update-new-version'
 
     # Use context handler so our pipeline can be closed automatically
     with beam.Pipeline(options=options) as pipeline:
-        # Initally just load and parse the CSV into Beam Pipeline
-        parsed_csv = (
+        # Initially just load and parse the CSV into Beam Pipeline
+        _ = (
                 pipeline
                 | 'Read CSV file' >> beam.io.ReadFromText(input_file)
                 | 'Convert file to PyObjects' >> beam.Map(parse_csv_file)
-                | 'Dump to List of JSON Lines' >> beam.Map(list_to_json_line)
+                | 'Dump to List of JSON Lines' >> beam.ParDo(JSONDump())
                 | 'Write the final transformed data to file' >> beam.io.WriteToText(output_file)
         )
 
